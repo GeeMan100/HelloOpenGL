@@ -14,7 +14,9 @@
 #import "Sphere.h"
 #import "cylinder.h"
 @import CoreMotion;
-@interface RWTViewController ()
+@interface RWTViewController (){
+    int secondsPassed;
+}
 
 @end
 
@@ -25,7 +27,10 @@
   Sphere *_sphere;
     cylinder *_cylinder;
     CMMotionManager *_motionManager;
-    float posX_float;
+    cylinder *_secCylinder;
+    NSTimeInterval _lastUpdateTime;
+    NSTimeInterval _deltaTime;
+
 }
 
 - (void)setupScene {
@@ -35,18 +40,14 @@
     _sphere = [[Sphere alloc]initWithShader:_shader];
     _sphere.position = GLKVector3Make(-1,-3,1);
     _cylinder = [[cylinder alloc] initWithShader:_shader];
+    _secCylinder = [[cylinder alloc] initWithShader:_shader];
     //_cylinder.position = GLKVector3Make(0, 3.5, 2);
   _sword.position = GLKVector3Make(0, 2, 0);
   _shader.projectionMatrix = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(85.0), self.view.bounds.size.width / self.view.bounds.size.height, 1, 150);
     _motionManager = [[CMMotionManager alloc]init];
     [_motionManager startAccelerometerUpdates];
-    int posX = arc4random() % 35;
-    int minusOrPlus = (arc4random() %2)+1;
-    posX_float = (float)posX / 24;
-    if (minusOrPlus >1) {
-        posX_float = -posX_float;
-    }
- 
+    [_cylinder loadTexture:@"cylinderblue.png"];
+    [_secCylinder loadTexture:@"barrelsecond.png"];
 }
 -(void)processUserMotionForUpdate:(NSTimeInterval)currentTime{
     CMAccelerometerData *data = _motionManager.accelerometerData;
@@ -93,26 +94,34 @@
   [_sword renderWithParentModelViewMatrix:viewMatrix];
     [_sphere renderWithParentModelViewMatrix:viewMatrix];
     [_cylinder renderWithParentModelViewMatrix:viewMatrix];
+    [_secCylinder renderWithParentModelViewMatrix:viewMatrix];
 }
 
 - (void)update {
+    if (_lastUpdateTime) {
+        _deltaTime = self.timeSinceLastUpdate - _lastUpdateTime;
+    }else{
+        _deltaTime = 0;
+    
+    }
+    secondsPassed++;
+    _lastUpdateTime = self.timeSinceLastUpdate;
   [_tree updateWithDelta:self.timeSinceLastUpdate];
   [_sword updateWithDelta:self.timeSinceLastUpdate];
     [_sphere updateWithDelta:self.timeSinceLastUpdate];
     [_cylinder updateWithDelta:self.timeSinceLastUpdate];
      [self processUserMotionForUpdate:self.timeSinceLastUpdate];
-    _cylinder.position = GLKVector3Make(posX_float, (_cylinder.position.y-0.041), 2.0);
     
-    if (_cylinder.position.y <= -3.0) {
-        int posX = arc4random() % 35;
-        int minusOrPlus = (arc4random() %2)+1;
-        posX_float = (float)posX / 24;
-        if (minusOrPlus >1) {
-            posX_float = -posX_float;
+    if (secondsPassed > 30) {
+        [_secCylinder updateWithDelta:self.timeSinceLastUpdate];
+        if (_secCylinder.position.y <= -3) {
+            secondsPassed = 0;
         }
-        NSLog(@"posX_float = %f",posX_float);
-        _cylinder.position = GLKVector3Make(posX_float, 3.5, 2.0);
     }
+
+    
+    
+ 
 }
 
 @end
