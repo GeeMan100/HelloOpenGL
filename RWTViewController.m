@@ -16,6 +16,9 @@
 @import CoreMotion;
 @interface RWTViewController (){
     int secondsPassed;
+    int thirdCylinder;
+    int fourthCylinder;
+    int fifthCylinder;
 }
 
 @end
@@ -26,11 +29,14 @@
   RWTSword *_sword;
   Sphere *_sphere;
     cylinder *_cylinder;
+    cylinder *_hitCyliner;
     CMMotionManager *_motionManager;
     cylinder *_secCylinder;
     NSTimeInterval _lastUpdateTime;
     NSTimeInterval _deltaTime;
-
+    cylinder *_thirdCylinder;
+    cylinder *_fourthCylinder;
+    cylinder *_fifthCylinder;
 }
 
 - (void)setupScene {
@@ -41,6 +47,9 @@
     _sphere.position = GLKVector3Make(-1,-3,1);
     _cylinder = [[cylinder alloc] initWithShader:_shader];
     _secCylinder = [[cylinder alloc] initWithShader:_shader];
+    _thirdCylinder = [[cylinder alloc]initWithShader:_shader];
+    _fourthCylinder = [[cylinder alloc]initWithShader:_shader];
+    _fifthCylinder = [[cylinder alloc] initWithShader:_shader];
     //_cylinder.position = GLKVector3Make(0, 3.5, 2);
   _sword.position = GLKVector3Make(0, 2, 0);
   _shader.projectionMatrix = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(85.0), self.view.bounds.size.width / self.view.bounds.size.height, 1, 150);
@@ -48,6 +57,9 @@
     [_motionManager startAccelerometerUpdates];
     [_cylinder loadTexture:@"cylinderblue.png"];
     [_secCylinder loadTexture:@"barrelsecond.png"];
+    [_thirdCylinder loadTexture:@"whitebarrel.png"];
+    [_fourthCylinder loadTexture:@"whitebarrel.png"];
+    [_fifthCylinder loadTexture:@"barrelsecond.png"];
 }
 -(void)processUserMotionForUpdate:(NSTimeInterval)currentTime{
     CMAccelerometerData *data = _motionManager.accelerometerData;
@@ -69,7 +81,7 @@
 - (void)viewDidLoad
 {
   [super viewDidLoad];
-	GLKView *view = (GLKView *)self.view;
+  GLKView *view = (GLKView *)self.view;
   view.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
   view.drawableDepthFormat = GLKViewDrawableDepthFormat16;
   
@@ -95,6 +107,27 @@
     [_sphere renderWithParentModelViewMatrix:viewMatrix];
     [_cylinder renderWithParentModelViewMatrix:viewMatrix];
     [_secCylinder renderWithParentModelViewMatrix:viewMatrix];
+    [_thirdCylinder renderWithParentModelViewMatrix:viewMatrix];
+    [_fourthCylinder renderWithParentModelViewMatrix:viewMatrix];
+    [_fifthCylinder renderWithParentModelViewMatrix:viewMatrix];
+}
+-(void)checkCollisions:(cylinder*)aCylinder{
+    if (((aCylinder.position.x) <= (_sphere.position.x + 0.2) && (aCylinder.position.x) >= (_sphere.position.x - 0.2) &&(aCylinder.position.y) <= (_sphere.position.y + 0.12) && (aCylinder.position.y) >= (_sphere.position.y - 0.12))) {
+        
+        NSLog(@"aCylinder.posX = %f,aCylinder.posY = %f,_sphere.posX = %f,           _sphere.posY = %f"
+              ,aCylinder.position.x, aCylinder.position.y,_sphere.position.x, _sphere.position.y);
+        
+    
+    }
+    
+    
+}
+- (void)hitTest {
+    [self checkCollisions:_cylinder];
+    [self checkCollisions:_secCylinder];
+    [self checkCollisions:_thirdCylinder];
+    [self checkCollisions:_fourthCylinder];
+    [self checkCollisions:_fifthCylinder];
 }
 
 - (void)update {
@@ -105,10 +138,15 @@
     
     }
     secondsPassed++;
+    thirdCylinder++;
+    fourthCylinder++;
+    fifthCylinder++;
     _lastUpdateTime = self.timeSinceLastUpdate;
   [_tree updateWithDelta:self.timeSinceLastUpdate];
   [_sword updateWithDelta:self.timeSinceLastUpdate];
+   
     [_sphere updateWithDelta:self.timeSinceLastUpdate];
+     [self hitTest];
     [_cylinder updateWithDelta:self.timeSinceLastUpdate];
      [self processUserMotionForUpdate:self.timeSinceLastUpdate];
     
@@ -118,10 +156,26 @@
             secondsPassed = 0;
         }
     }
-
+    if (thirdCylinder > 45) {
+        [_thirdCylinder updateWithDelta:self.timeSinceLastUpdate];
+        if (_thirdCylinder.position.y <= -3) {
+            thirdCylinder = 0;
+        }
+    }
+    if (fourthCylinder > 65) {
+        [_fourthCylinder updateWithDelta:self.timeSinceLastUpdate];
+        if (_fourthCylinder.position.y <= -3) {
+            fourthCylinder = 0;
+        }
+    }
+    if (fifthCylinder > 100) {
+        [_fifthCylinder updateWithDelta:self.timeSinceLastUpdate];
+        if (_fifthCylinder.position.y <= -3) {
+            fifthCylinder = 0;
+        }
+    }
+    [self hitTest];
     
-    
- 
 }
 
 @end
