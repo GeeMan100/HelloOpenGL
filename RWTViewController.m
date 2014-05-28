@@ -13,6 +13,8 @@
 #import "RWTSword.h"
 #import "Sphere.h"
 #import "cylinder.h"
+#import "Board.h"
+
 @import CoreMotion;
 @interface RWTViewController (){
     int secondsPassed;
@@ -37,6 +39,7 @@
     cylinder *_thirdCylinder;
     cylinder *_fourthCylinder;
     cylinder *_fifthCylinder;
+    Board *_board;
 }
 
 - (void)setupScene {
@@ -50,6 +53,7 @@
     _thirdCylinder = [[cylinder alloc]initWithShader:_shader];
     _fourthCylinder = [[cylinder alloc]initWithShader:_shader];
     _fifthCylinder = [[cylinder alloc] initWithShader:_shader];
+    _board = [[Board alloc] initWithShader:_shader];
     //_cylinder.position = GLKVector3Make(0, 3.5, 2);
   _sword.position = GLKVector3Make(0, 2, 0);
   _shader.projectionMatrix = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(85.0), self.view.bounds.size.width / self.view.bounds.size.height, 1, 150);
@@ -60,6 +64,7 @@
     [_thirdCylinder loadTexture:@"whitebarrel.png"];
     [_fourthCylinder loadTexture:@"whitebarrel.png"];
     [_fifthCylinder loadTexture:@"barrelsecond.png"];
+    [_board loadTexture:@"boardred.png"];
 }
 -(void)processUserMotionForUpdate:(NSTimeInterval)currentTime{
     CMAccelerometerData *data = _motionManager.accelerometerData;
@@ -110,6 +115,7 @@
     [_thirdCylinder renderWithParentModelViewMatrix:viewMatrix];
     [_fourthCylinder renderWithParentModelViewMatrix:viewMatrix];
     [_fifthCylinder renderWithParentModelViewMatrix:viewMatrix];
+    [_board renderWithParentModelViewMatrix:viewMatrix];
 }
 -(void)checkCollisions:(cylinder*)aCylinder{
     if (((aCylinder.position.x) <= (_sphere.position.x + 0.2) && (aCylinder.position.x) >= (_sphere.position.x - 0.2) &&(aCylinder.position.y) <= (_sphere.position.y + 0.12) && (aCylinder.position.y) >= (_sphere.position.y - 0.12))) {
@@ -174,6 +180,8 @@
             fifthCylinder = 0;
         }
     }
+    [_board updateWithDelta:self.timeSinceLastUpdate];
+    
     [self hitTest];
     
 }
