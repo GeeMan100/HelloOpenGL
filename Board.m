@@ -18,8 +18,8 @@
      
     //self.rotationY = M_PI;
     //self.rotationX = M_PI_2;
-    self.scale = 1.25;
-    self.position = GLKVector3Make(0.7, -0.4, 0);
+    self.scale = 1;
+    self.position = GLKVector3Make(0.7, 3, 0);
       //
       self.matAmbientColor = GLKVector3Make(Cube_boardone_ambient.r, Cube_boardone_ambient.g, Cube_boardone_ambient.b);
       self.matDiffuseColor = GLKVector3Make(Cube_boardone_diffuse.r, Cube_boardone_diffuse.g, Cube_boardone_diffuse.b);
@@ -33,7 +33,11 @@
 
 - (void)updateWithDelta:(NSTimeInterval)aDelta {
     self.rotationX += M_PI * aDelta;
-   
+   self.position = GLKVector3Make(0.7, self.position.y - 0.02, 0);
+    if (self.position.y <= -3.0) {
+        self.position = GLKVector3Make(0.7, 3, 0);
+    }
+
 }
 
 @end

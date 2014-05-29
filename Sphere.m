@@ -18,7 +18,7 @@
      
     self.rotationY = M_PI;
     self.rotationX = M_PI_2;
-    self.scale = 0.15;
+    self.scale = 0.1;
     
       //
       self.matAmbientColor = GLKVector3Make(Sphere_sphere_ambient.r, Sphere_sphere_ambient.g, Sphere_sphere_ambient.b);

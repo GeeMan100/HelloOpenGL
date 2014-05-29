@@ -47,7 +47,7 @@
   _tree = [[RWTTree alloc] initWithShader:_shader];
   _sword = [[RWTSword alloc] initWithShader:_shader];
     _sphere = [[Sphere alloc]initWithShader:_shader];
-    _sphere.position = GLKVector3Make(-1,-3,1);
+    _sphere.position = GLKVector3Make(1,-1,1);
     _cylinder = [[cylinder alloc] initWithShader:_shader];
     _secCylinder = [[cylinder alloc] initWithShader:_shader];
     _thirdCylinder = [[cylinder alloc]initWithShader:_shader];
@@ -56,7 +56,10 @@
     _board = [[Board alloc] initWithShader:_shader];
     //_cylinder.position = GLKVector3Make(0, 3.5, 2);
   _sword.position = GLKVector3Make(0, 2, 0);
-  _shader.projectionMatrix = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(85.0), self.view.bounds.size.width / self.view.bounds.size.height, 1, 150);
+    //
+    float aspect = fabsf(self.view.bounds.size.width / self.view.bounds.size.height);
+    //
+    _shader.projectionMatrix = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(65.0f), aspect, 0.1f, 100.0f);
     _motionManager = [[CMMotionManager alloc]init];
     [_motionManager startAccelerometerUpdates];
     [_cylinder loadTexture:@"cylinderblue.png"];
@@ -65,20 +68,21 @@
     [_fourthCylinder loadTexture:@"whitebarrel.png"];
     [_fifthCylinder loadTexture:@"barrelsecond.png"];
     [_board loadTexture:@"boardred.png"];
+    
 }
 -(void)processUserMotionForUpdate:(NSTimeInterval)currentTime{
     CMAccelerometerData *data = _motionManager.accelerometerData;
     if ((data.acceleration.x)>0.2) {
-        _sphere.position = GLKVector3Make(_sphere.position.x + 0.1, -3, 1);
+        _sphere.position = GLKVector3Make(_sphere.position.x + 0.1, -1, 1);
     }
     if ((data.acceleration.x)<-0.2) {
-        _sphere.position = GLKVector3Make(_sphere.position.x - 0.1, -3, 1);
+        _sphere.position = GLKVector3Make(_sphere.position.x - 0.1, -1, 1);
     }
-    if (_sphere.position.x <= -2.4) {
-        _sphere.position = GLKVector3Make(-2.4, -3, 1);
+    if (_sphere.position.x <= -1.5) {
+        _sphere.position = GLKVector3Make(-1.5, -1, 1);
     }
-    if (_sphere.position.x >= 2.4) {
-        _sphere.position = GLKVector3Make(2.4, -3, 1);
+    if (_sphere.position.x >= 1.5) {
+        _sphere.position = GLKVector3Make(1.5, -1, 1);
     }
     
     
@@ -104,8 +108,8 @@
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   //FIXME:change the 1 to -1
-  GLKMatrix4 viewMatrix = GLKMatrix4MakeTranslation(0, -1, -5);
-  viewMatrix = GLKMatrix4Rotate(viewMatrix, GLKMathDegreesToRadians(20), 1, 0, 0);
+  GLKMatrix4 viewMatrix = GLKMatrix4MakeTranslation(0, 0, -5);
+  //viewMatrix = GLKMatrix4Rotate(viewMatrix, GLKMathDegreesToRadians(20), 1, 0, 0);
   
   [_tree renderWithParentModelViewMatrix:viewMatrix];
   [_sword renderWithParentModelViewMatrix:viewMatrix];
@@ -120,8 +124,8 @@
 -(void)checkCollisions:(cylinder*)aCylinder{
     if (((aCylinder.position.x) <= (_sphere.position.x + 0.2) && (aCylinder.position.x) >= (_sphere.position.x - 0.2) &&(aCylinder.position.y) <= (_sphere.position.y + 0.12) && (aCylinder.position.y) >= (_sphere.position.y - 0.12))) {
         
-        NSLog(@"aCylinder.posX = %f,aCylinder.posY = %f,_sphere.posX = %f,           _sphere.posY = %f"
-              ,aCylinder.position.x, aCylinder.position.y,_sphere.position.x, _sphere.position.y);
+       // NSLog(@"aCylinder.posX = %f,aCylinder.posY = %f,_sphere.posX = %f,           _sphere.posY = %f"
+      //        ,aCylinder.position.x, aCylinder.position.y,_sphere.position.x, _sphere.position.y);
         
     
     }
@@ -135,7 +139,11 @@
     [self checkCollisions:_fourthCylinder];
     [self checkCollisions:_fifthCylinder];
 }
-
+-(void)checkBoardOneCollisions{
+    if ((_board.position.x-1.3) <= _sphere.position.x  && (_board.position.y-0.01) <= (_sphere.position.y) && (_board.position.y + 0.01) >= (_sphere.position.y)) {
+        NSLog(@"_board.position.x = %f,_board.position.y = %f, _sphere.position.x = %f, _sphere.position.y = %f", _board.position.x, _board.position.y, _sphere.position.x, _sphere.position.y);
+    }
+}
 - (void)update {
     if (_lastUpdateTime) {
         _deltaTime = self.timeSinceLastUpdate - _lastUpdateTime;
@@ -183,6 +191,7 @@
     [_board updateWithDelta:self.timeSinceLastUpdate];
     
     [self hitTest];
+    [self checkBoardOneCollisions];
     
 }
 

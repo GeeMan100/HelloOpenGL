@@ -43,7 +43,7 @@
         posX_float = -posX_float;
     }
     //NSLog(@"posX_float = %f",posX_float);
-    self.position = GLKVector3Make(posX_float, 3.5, 2.0);
+    self.position = GLKVector3Make(posX_float, 3, 2.0);
 }
 
 - (void)updateWithDelta:(NSTimeInterval)aDelta
